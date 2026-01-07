@@ -33,7 +33,6 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Try network first, then cache
   event.respondWith(
     fetch(event.request)
       .then((response) => {
