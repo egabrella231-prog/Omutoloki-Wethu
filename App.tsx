@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from './supabaseClient';
-import Auth from './components/Auth';
-import Translator from './components/Translator';
+import { supabase } from './supabaseClient.ts';
+import Auth from './components/Auth.tsx';
+import Translator from './components/Translator.tsx';
 import { User } from '@supabase/supabase-js';
 import { LogOut, Languages, Sparkles, Activity, ShieldCheck, User as UserIcon } from 'lucide-react';
-import { UserRole, UserProfile } from './types';
+import { UserRole, UserProfile } from './types.ts';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | any | null>(null);

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
-import { UserRole, DictionaryEntry, UserProfile } from '../types';
+import { supabase } from '../supabaseClient.ts';
+import { UserRole, DictionaryEntry, UserProfile } from '../types.ts';
 import { 
   Users, 
   Database, 

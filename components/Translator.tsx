@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../supabaseClient';
-import { getAutonomousTranslation, speakText } from '../geminiService';
-import { Language, DictionaryEntry, UserRole } from '../types';
+import { supabase } from '../supabaseClient.ts';
+import { getAutonomousTranslation, speakText } from '../geminiService.ts';
+import { Language, DictionaryEntry, UserRole } from '../types.ts';
 import { 
   Mic, 
   Volume2, 
@@ -25,7 +25,7 @@ import {
   Power,
   Info
 } from 'lucide-react';
-import AdminPanel from './AdminPanel';
+import AdminPanel from './AdminPanel.tsx';
 
 interface TranslatorProps {
   user: any;
