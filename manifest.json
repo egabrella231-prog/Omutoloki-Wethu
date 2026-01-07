@@ -1,0 +1,18 @@
+
+{
+  "name": "Omtoloki AI",
+  "short_name": "Omtoloki",
+  "description": "Autonomous Oshikwanyama Translator",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2885/2885417.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

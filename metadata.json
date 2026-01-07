@@ -1,0 +1,7 @@
+{
+  "name": "Omtoloki Wethu- Oshikwanyama Translator",
+  "description": "An autonomous, self-learning Oshikwanyama ↔ English translation platform featuring real-time AI learning, voice synthesis, and secure cloud storage.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
