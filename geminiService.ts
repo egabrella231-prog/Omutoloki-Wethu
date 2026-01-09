@@ -2,12 +2,14 @@
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { Language, DictionaryEntry } from './types.ts';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 /**
  * Translates and linguistically analyzes text with Dialect Discrimination.
  */
 export async function getAutonomousTranslation(text: string, sourceLang: Language): Promise<DictionaryEntry | null> {
+  // Initialize inside the function to ensure process.env is accessible and not evaluated at module top-level
+  const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : '';
+  const ai = new GoogleGenAI({ apiKey });
+  
   const targetLang = sourceLang === Language.ENGLISH ? Language.OSHIKWANYAMA : Language.ENGLISH;
   
   const systemInstruction = `You are a Lead Linguist for Northern Namibian languages. 
@@ -92,6 +94,9 @@ async function playAudio(base64: string) {
 
 export async function speakText(text: string) {
   if (!text) return;
+  const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : '';
+  const ai = new GoogleGenAI({ apiKey });
+
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-tts",

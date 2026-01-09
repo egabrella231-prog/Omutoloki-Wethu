@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../supabaseClient.ts';
 import { Mail, Lock, Loader2, AlertCircle, Eye, EyeOff, CheckCircle2, ArrowRight, ShieldCheck, HelpCircle, ExternalLink, Copy } from 'lucide-react';
 
 interface AuthProps {
