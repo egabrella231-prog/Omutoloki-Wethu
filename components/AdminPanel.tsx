@@ -8,14 +8,13 @@ import {
   Shield, 
   Edit3, 
   Trash2, 
-  CheckCircle, 
-  XCircle, 
   Search, 
-  MoreVertical,
   Save,
   Lock,
   Unlock,
-  Plus
+  Plus,
+  X,
+  Check
 } from 'lucide-react';
 
 interface AdminPanelProps {
@@ -29,7 +28,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onClose }) => {
   const [vault, setVault] = useState<DictionaryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [editingId, setEditingId] = useState<number | string | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editFormData, setEditFormData] = useState<DictionaryEntry | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -53,10 +53,32 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onClose }) => {
     fetchData();
   };
 
-  const updateEntry = async (entry: DictionaryEntry) => {
-    await supabase.from('knowledge_vault').upsert(entry);
+  const startEditing = (entry: DictionaryEntry) => {
+    setEditingId(entry.id || null);
+    setEditFormData({ ...entry });
+  };
+
+  const cancelEditing = () => {
     setEditingId(null);
-    fetchData();
+    setEditFormData(null);
+  };
+
+  const handleEditChange = (field: keyof DictionaryEntry, value: string) => {
+    if (editFormData) {
+      setEditFormData({ ...editFormData, [field]: value });
+    }
+  };
+
+  const updateEntry = async () => {
+    if (!editFormData) return;
+    const { error } = await supabase.from('knowledge_vault').upsert(editFormData);
+    if (error) {
+      alert("Error updating record: " + error.message);
+    } else {
+      setEditingId(null);
+      setEditFormData(null);
+      fetchData();
+    }
   };
 
   const deleteEntry = async (id: number) => {
@@ -123,27 +145,91 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onClose }) => {
             </div>
           ) : activeTab === 'vault' ? (
             <div className="space-y-4">
-              {vault.filter(e => e.english_word.includes(search) || e.oshikwanyama_word.includes(search)).map((entry) => (
+              {vault.filter(e => e.english_word.toLowerCase().includes(search.toLowerCase()) || e.oshikwanyama_word.toLowerCase().includes(search.toLowerCase())).map((entry) => (
                 <div key={entry.id} className="group relative glass-panel p-6 rounded-[1.5rem] border-white/5 hover:border-indigo-500/20 transition-all">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Words</p>
-                      <p className="text-white font-bold">{entry.oshikwanyama_word} <span className="text-indigo-400">↔</span> {entry.english_word}</p>
+                  {editingId === entry.id ? (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-in fade-in zoom-in-95 duration-200">
+                      <div className="space-y-3">
+                         <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Core Mappings</p>
+                         <input 
+                            className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
+                            placeholder="Oshikwanyama"
+                            value={editFormData?.oshikwanyama_word || ''}
+                            onChange={(e) => handleEditChange('oshikwanyama_word', e.target.value)}
+                         />
+                         <input 
+                            className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
+                            placeholder="English"
+                            value={editFormData?.english_word || ''}
+                            onChange={(e) => handleEditChange('english_word', e.target.value)}
+                         />
+                      </div>
+                      <div className="space-y-3">
+                         <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Metadata</p>
+                         <input 
+                            className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
+                            placeholder="Word Type (e.g. Noun)"
+                            value={editFormData?.word_types || ''}
+                            onChange={(e) => handleEditChange('word_types', e.target.value)}
+                         />
+                         <input 
+                            className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
+                            placeholder="Plurals/Classes"
+                            value={editFormData?.omaludi_oitja || ''}
+                            onChange={(e) => handleEditChange('omaludi_oitja', e.target.value)}
+                         />
+                      </div>
+                      <div className="md:col-span-2 space-y-3">
+                         <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Context Sentences</p>
+                         <textarea 
+                            className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-[11px] text-white focus:border-indigo-500 focus:outline-none h-16 resize-none"
+                            placeholder="Oshikwanyama Context"
+                            value={editFormData?.oshitya_metumbulo || ''}
+                            onChange={(e) => handleEditChange('oshitya_metumbulo', e.target.value)}
+                         />
+                         <textarea 
+                            className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-[11px] text-white focus:border-indigo-500 focus:outline-none h-16 resize-none"
+                            placeholder="English Context"
+                            value={editFormData?.word_in_phrase_sentence || ''}
+                            onChange={(e) => handleEditChange('word_in_phrase_sentence', e.target.value)}
+                         />
+                      </div>
+                      <div className="absolute top-4 right-4 flex gap-2">
+                        <button onClick={updateEntry} className="p-2 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-600 hover:text-white transition-all">
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button onClick={cancelEditing} className="p-2 bg-slate-800 text-slate-400 rounded-lg hover:text-white transition-all">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Type / Plurals</p>
-                      <p className="text-slate-300 text-xs font-medium">{entry.word_types} • {entry.omaludi_oitja}</p>
-                    </div>
-                    <div className="md:col-span-2 space-y-1">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Context (Oshikwanyama / EN)</p>
-                      <p className="text-slate-400 text-[11px] leading-relaxed italic">{entry.oshitya_metumbulo}</p>
-                      <p className="text-slate-500 text-[10px] leading-relaxed">{entry.word_in_phrase_sentence}</p>
-                    </div>
-                  </div>
-                  <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="p-2 bg-slate-800 rounded-lg hover:text-indigo-400"><Edit3 className="w-4 h-4" /></button>
-                    <button onClick={() => deleteEntry(entry.id!)} className="p-2 bg-slate-800 rounded-lg hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
-                  </div>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Words</p>
+                          <p className="text-white font-bold">{entry.oshikwanyama_word} <span className="text-indigo-400">↔</span> {entry.english_word}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Type / Plurals</p>
+                          <p className="text-slate-300 text-xs font-medium">{entry.word_types} • {entry.omaludi_oitja}</p>
+                        </div>
+                        <div className="md:col-span-2 space-y-1">
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Context (Oshikwanyama / EN)</p>
+                          <p className="text-slate-400 text-[11px] leading-relaxed italic">{entry.oshitya_metumbulo}</p>
+                          <p className="text-slate-500 text-[10px] leading-relaxed">{entry.word_in_phrase_sentence}</p>
+                        </div>
+                      </div>
+                      <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => startEditing(entry)} className="p-2 bg-slate-800 rounded-lg hover:text-indigo-400 transition-colors">
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => deleteEntry(entry.id!)} className="p-2 bg-slate-800 rounded-lg hover:text-red-400 transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
