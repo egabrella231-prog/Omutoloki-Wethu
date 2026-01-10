@@ -10,8 +10,17 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
     <script>
-      // Polyfill process for browser environment to prevent ReferenceErrors
-      window.process = window.process || { env: {} };
+      /** 
+       * CRITICAL FIX: Vercel/Browser environments don't have 'process'.
+       * This polyfill must run before ANY module imports.
+       */
+      window.process = {
+        env: {
+          // Vercel usually injects these, but we ensure the object structure exists.
+          API_KEY: "" 
+        }
+      };
+      console.log("Environment Polyfill: Ready");
     </script>
     <style>
         :root {
@@ -81,17 +90,5 @@
     <div id="root"></div>
     <!-- Entry point script -->
     <script type="module" src="./index.tsx"></script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          // Use relative path for SW registration to avoid origin issues
-          navigator.serviceWorker.register('sw.js').then(reg => {
-            console.log('SW registered:', reg);
-          }).catch(err => {
-            console.log('SW registration failed:', err);
-          });
-        });
-      }
-    </script>
 </body>
 </html>
