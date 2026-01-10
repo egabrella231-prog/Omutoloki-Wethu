@@ -6,8 +6,8 @@ import { Language, DictionaryEntry } from './types.ts';
  * Translates and linguistically analyzes text with Dialect Discrimination.
  */
 export async function getAutonomousTranslation(text: string, sourceLang: Language): Promise<DictionaryEntry | null> {
-  // Initialize with direct process.env.API_KEY reference
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Ensure we initialize exactly as required by guidelines
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
   
   const targetLang = sourceLang === Language.ENGLISH ? Language.OSHIKWANYAMA : Language.ENGLISH;
   
@@ -49,7 +49,6 @@ export async function getAutonomousTranslation(text: string, sourceLang: Languag
       }
     });
 
-    // Extracting text output from GenerateContentResponse using .text property
     const responseText = response.text;
     if (!responseText) {
       throw new Error("Empty response from AI");
@@ -95,8 +94,7 @@ async function playAudio(base64: string) {
 
 export async function speakText(text: string) {
   if (!text) return;
-  // Initialize with direct process.env.API_KEY reference
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 
   try {
     const response = await ai.models.generateContent({

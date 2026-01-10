@@ -9,6 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
+    <script>
+      // Polyfill process for browser environment to prevent ReferenceErrors
+      window.process = window.process || { env: {} };
+    </script>
     <style>
         :root {
             --bg-color: #020617;
@@ -80,7 +84,8 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js').then(reg => {
+          // Use relative path for SW registration to avoid origin issues
+          navigator.serviceWorker.register('sw.js').then(reg => {
             console.log('SW registered:', reg);
           }).catch(err => {
             console.log('SW registration failed:', err);
